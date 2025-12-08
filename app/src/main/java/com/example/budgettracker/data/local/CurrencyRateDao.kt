@@ -5,12 +5,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
-
 @Dao
-interface UserDao {
+interface CurrencyRateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUser(user: User)
+    suspend fun insert(rate: CurrencyRate)
 
-    @Query("SELECT * FROM users WHERE firebaseUid = :uid LIMIT 1")
-    suspend fun getUserByUid(uid: String): User?
+    @Query("SELECT * FROM currency_rates WHERE base=:base LIMIT 1")
+    suspend fun getRate(base: String): CurrencyRate?
 }

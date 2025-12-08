@@ -31,7 +31,7 @@ Thumbs.db
 desktop.ini
 
 # Firebase / Google Services
-google-services.json
+app/google-services.json
 
 # Mac OS
 *.DS_Store

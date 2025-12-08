@@ -11,16 +11,47 @@ import com.example.budgettracker.data.local.User
 @Composable
 fun HomeScreen(
     user: User,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onGoToTransactions: () -> Unit,
+    onGoToCurrency: () -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Welcome, ${user.email}", style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(20.dp))
-            Button(onClick = onLogout) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            Text(
+                text = "Welcome, ${user.email}",
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            // Transactions Button
+            Button(
+                onClick = onGoToTransactions,
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Text("Go to Transactions")
+            }
+
+            // Currency Button
+            Button(
+                onClick = onGoToCurrency,
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Text("View Currency Rates")
+            }
+
+            // Logout Button
+            OutlinedButton(
+                onClick = onLogout,
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
                 Text("Logout")
             }
         }

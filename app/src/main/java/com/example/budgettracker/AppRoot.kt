@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,7 +33,9 @@ import okhttp3.MediaType.Companion.toMediaType
 fun AppRoot() {
 
     val context = LocalContext.current
-    val authVM: AuthViewModel = viewModel()
+    val authVM: AuthViewModel = viewModel(
+        factory = ViewModelProvider.AndroidViewModelFactory.getInstance(context.applicationContext as android.app.Application)
+    )
     val auth = FirebaseAuth.getInstance()
     var loggedInUser by remember { mutableStateOf<com.example.budgettracker.data.local.User?>(null) }
     var showSplash by remember { mutableStateOf(true) }
@@ -43,7 +46,7 @@ fun AppRoot() {
             context,
             AppDatabase::class.java,
             "budget_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     // Retrofit for currency API
@@ -98,8 +101,10 @@ fun AppRoot() {
         ) {
 
             composable("home") {
+                val balance by txVM.balance.collectAsState(initial = 0.0)
                 HomeScreen(
                     user = loggedInUser!!,
+                    balance = balance,
                     onLogout = {
                         authVM.logout()
                         loggedInUser = null

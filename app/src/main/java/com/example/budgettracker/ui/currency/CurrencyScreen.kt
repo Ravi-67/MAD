@@ -11,21 +11,57 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.budgettracker.ui.theme.BudgettrackerTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyScreen(vm: CurrencyViewModel) {
-
     val rate by vm.rate.collectAsState()
     
-    // Trigger load on first composition if empty
     LaunchedEffect(Unit) {
         if (vm.currencyCodes.isEmpty()) {
             vm.load("USD")
         }
     }
 
+    CurrencyContent(
+        amount = vm.amount,
+        onAmountChange = { 
+            vm.amount = it
+            vm.calculateConversion()
+        },
+        fromCurrency = vm.fromCurrency,
+        toCurrency = vm.toCurrency,
+        currencyCodes = vm.currencyCodes,
+        onFromCurrencyChange = {
+            vm.fromCurrency = it
+            vm.calculateConversion()
+        },
+        onToCurrencyChange = {
+            vm.toCurrency = it
+            vm.calculateConversion()
+        },
+        onSwap = { vm.swapCurrencies() },
+        convertedAmount = vm.convertedAmount,
+        lastUpdated = rate?.timestamp
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CurrencyContent(
+    amount: String,
+    onAmountChange: (String) -> Unit,
+    fromCurrency: String,
+    toCurrency: String,
+    currencyCodes: List<String>,
+    onFromCurrencyChange: (String) -> Unit,
+    onToCurrencyChange: (String) -> Unit,
+    onSwap: () -> Unit,
+    convertedAmount: Double,
+    lastUpdated: Long?
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -47,11 +83,10 @@ fun CurrencyScreen(vm: CurrencyViewModel) {
             
             // Amount Input
             OutlinedTextField(
-                value = vm.amount,
+                value = amount,
                 onValueChange = { 
                     if (it.all { char -> char.isDigit() || char == '.' }) {
-                        vm.amount = it
-                        vm.calculateConversion()
+                        onAmountChange(it)
                     }
                 },
                 label = { Text("Amount") },
@@ -70,18 +105,15 @@ fun CurrencyScreen(vm: CurrencyViewModel) {
             ) {
                 // From Currency
                 CurrencyDropdown(
-                    selected = vm.fromCurrency,
-                    options = vm.currencyCodes,
-                    onSelect = { 
-                        vm.fromCurrency = it 
-                        vm.calculateConversion()
-                    },
+                    selected = fromCurrency,
+                    options = currencyCodes,
+                    onSelect = onFromCurrencyChange,
                     modifier = Modifier.weight(1f)
                 )
 
                 // Swap Button
                 IconButton(
-                    onClick = { vm.swapCurrencies() },
+                    onClick = onSwap,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
                     Icon(
@@ -93,12 +125,9 @@ fun CurrencyScreen(vm: CurrencyViewModel) {
 
                 // To Currency
                 CurrencyDropdown(
-                    selected = vm.toCurrency,
-                    options = vm.currencyCodes,
-                    onSelect = { 
-                        vm.toCurrency = it 
-                        vm.calculateConversion()
-                    },
+                    selected = toCurrency,
+                    options = currencyCodes,
+                    onSelect = onToCurrencyChange,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -126,7 +155,7 @@ fun CurrencyScreen(vm: CurrencyViewModel) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = String.format("%.2f %s", vm.convertedAmount, vm.toCurrency),
+                        text = String.format("%.2f %s", convertedAmount, toCurrency),
                         style = MaterialTheme.typography.displayMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -137,7 +166,7 @@ fun CurrencyScreen(vm: CurrencyViewModel) {
             Spacer(modifier = Modifier.weight(1f))
             
             Text(
-                text = "Last updated: ${if (rate != null) java.util.Date(rate!!.timestamp).toString() else "Never"}",
+                text = "Last updated: ${if (lastUpdated != null) java.util.Date(lastUpdated).toString() else "Never"}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
@@ -183,5 +212,24 @@ fun CurrencyDropdown(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CurrencyScreenPreview() {
+    BudgettrackerTheme {
+        CurrencyContent(
+            amount = "100",
+            onAmountChange = {},
+            fromCurrency = "USD",
+            toCurrency = "EUR",
+            currencyCodes = listOf("USD", "EUR", "GBP", "JPY", "INR"),
+            onFromCurrencyChange = {},
+            onToCurrencyChange = {},
+            onSwap = {},
+            convertedAmount = 85.50,
+            lastUpdated = System.currentTimeMillis()
+        )
     }
 }

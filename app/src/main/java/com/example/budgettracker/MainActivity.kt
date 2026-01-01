@@ -1,42 +1,48 @@
 package com.example.budgettracker
 
 import android.app.AlertDialog
-import android.app.KeyguardManager
+// import android.app.KeyguardManager
 import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
+// import androidx.biometric.BiometricManager
+// import androidx.biometric.BiometricPrompt
 import androidx.compose.material3.MaterialTheme
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.budgettracker.data.local.SecurityPreferences
+// import com.example.budgettracker.data.local.SecurityPreferences
 import com.example.budgettracker.ui.AppRoot
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
+// import kotlinx.coroutines.flow.first
+// import kotlinx.coroutines.launch
+// import java.util.concurrent.Executor
 
 class MainActivity : FragmentActivity() {
 
+    /*
     private lateinit var securityPrefs: SecurityPreferences
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    */
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        securityPrefs = SecurityPreferences(this)
+        // securityPrefs = SecurityPreferences(this)
 
+        /*
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             checkSecurityAndAuthenticate()
         } else {
             showContent()
         }
+        */
+        showContent()
     }
 
+    /*
     private fun checkSecurityAndAuthenticate() {
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
@@ -46,6 +52,7 @@ class MainActivity : FragmentActivity() {
             checkInsecureAccessPreference()
         }
     }
+    */
 
     private fun showContent() {
         setContent {
@@ -55,6 +62,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    /*
     private fun showBiometricPrompt() {
         val executor: Executor = ContextCompat.getMainExecutor(this)
         val biometricManager = BiometricManager.from(this)
@@ -139,4 +147,5 @@ class MainActivity : FragmentActivity() {
             .setCancelable(false)
             .show()
     }
+    */
 }

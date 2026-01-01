@@ -10,8 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.budgettracker.R
+import com.example.budgettracker.ui.theme.BudgettrackerTheme
 
 @Composable
 fun SplashScreen() {
@@ -28,5 +30,13 @@ fun SplashScreen() {
                 .size(120.dp)
                 .clip(RoundedCornerShape(24.dp)) // 👈 adds rounded corners
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SplashScreenPreview() {
+    BudgettrackerTheme {
+        SplashScreen()
     }
 }

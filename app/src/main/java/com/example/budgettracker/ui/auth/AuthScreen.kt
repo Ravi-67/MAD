@@ -11,23 +11,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgettracker.R
 import com.example.budgettracker.data.local.User
+import com.example.budgettracker.ui.theme.BudgettrackerTheme
 
 @Composable
 fun AuthScreen(
     onAuthSuccess: (User) -> Unit,
     viewModel: AuthViewModel = viewModel()
 ) {
+    val message by viewModel.authMessage
+
+    AuthContent(
+        message = message,
+        onLogin = { email, password ->
+            viewModel.login(email, password, onAuthSuccess)
+        },
+        onRegister = { email, password ->
+            viewModel.register(email, password)
+        }
+    )
+}
+
+@Composable
+fun AuthContent(
+    message: String?,
+    onLogin: (String, String) -> Unit,
+    onRegister: (String, String) -> Unit
+) {
     var isSignUp by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
-    val message by viewModel.authMessage
 
     fun validate(): Boolean {
         if (email.isBlank() || password.isBlank()) {
@@ -136,11 +156,9 @@ fun AuthScreen(
                                 error = null
                                 if (!validate()) return@Button
                                 if (isSignUp) {
-                                    viewModel.register(email, password)
+                                    onRegister(email, password)
                                 } else {
-                                    viewModel.login(email, password) { user ->
-                                        onAuthSuccess(user)
-                                    }
+                                    onLogin(email, password)
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
@@ -183,5 +201,17 @@ fun AuthScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AuthScreenPreview() {
+    BudgettrackerTheme {
+        AuthContent(
+            message = "Welcome!",
+            onLogin = { _, _ -> },
+            onRegister = { _, _ -> }
+        )
     }
 }

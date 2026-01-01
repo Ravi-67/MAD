@@ -31,23 +31,83 @@ class TransactionViewModel(
         0.0
     )
 
+    // Categories and Subcategories
+    val incomeCategories = mapOf(
+        "Salary" to listOf("Full-time", "Freelance", "Bonus"),
+        "Investments" to listOf("Dividends", "Stock Sale", "Crypto"),
+        "Other Income" to listOf("Gift", "Rental", "Refund")
+    )
+
+    val expenseCategories = mapOf(
+        "Food" to listOf("Groceries", "Dining Out", "Snacks"),
+        "Transportation" to listOf("Fuel", "Public Transport", "Uber/Taxi"),
+        "Housing" to listOf("Rent", "Utilities", "Maintenance"),
+        "Entertainment" to listOf("Movies", "Games", "Subscription"),
+        "Health" to listOf("Pharmacy", "Doctor", "Gym")
+    )
+
     // UI State
     var amount by mutableStateOf("")
-    var description by mutableStateOf("")
-    var isExpense by mutableStateOf(true) // Default to Expense
+    var selectedCategory by mutableStateOf("")
+    var selectedSubCategory by mutableStateOf("")
+    var isExpense by mutableStateOf(true)
+
+    // Custom Category Management
+    var customCategory by mutableStateOf("")
+    var customSubCategory by mutableStateOf("")
+    var isAddingCustom by mutableStateOf(false)
+
+    init {
+        // Initialize default selections
+        updateDefaults()
+    }
+
+    fun updateDefaults() {
+        val categories = if (isExpense) expenseCategories else incomeCategories
+        selectedCategory = categories.keys.first()
+        selectedSubCategory = categories[selectedCategory]?.first() ?: ""
+    }
+
+    val spendingByTag = transactions.map { list ->
+        list.filter { it.amount < 0 }
+            .groupBy { it.tag.substringBefore(":") } // Group by main category
+            .mapValues { (_, txs) ->
+                kotlin.math.abs(txs.sumOf { it.amount })
+            }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyMap()
+    )
 
     fun add() {
         val amt = amount.toDoubleOrNull() ?: return
         if (amt <= 0) return
         
-        // Expense = absolute negative, Income = absolute positive
         val finalAmount = if (isExpense) -amt else amt
+        val tag = if (isAddingCustom && customCategory.isNotBlank()) {
+            if (customSubCategory.isNotBlank()) {
+                "Custom $customCategory: $customSubCategory"
+            } else {
+                "Custom: $customCategory"
+            }
+        } else {
+            "$selectedCategory: $selectedSubCategory"
+        }
         
         viewModelScope.launch {
-            repo.addTransaction(Transaction(amount = finalAmount, description = description))
+            repo.addTransaction(Transaction(
+                title = tag,
+                amount = finalAmount, 
+                description = "", 
+                tag = tag
+            ))
             // Reset input
             amount = ""
-            description = ""
+            customCategory = ""
+            customSubCategory = ""
+            isAddingCustom = false
+            updateDefaults()
         }
     }
 }

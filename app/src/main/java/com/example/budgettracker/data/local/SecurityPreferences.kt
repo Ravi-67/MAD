@@ -1,3 +1,4 @@
+/*
 package com.example.budgettracker.data.local
 
 import android.content.Context
@@ -26,3 +27,4 @@ class SecurityPreferences(private val context: Context) {
         }
     }
 }
+*/
